@@ -3,3 +3,5 @@ export type OliveApiResponse = {
   totalNumberOfRecords: number;
   items: any[];
 };
+
+export type OliveRecordType = `members` | `transactions`;

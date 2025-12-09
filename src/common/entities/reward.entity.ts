@@ -15,7 +15,7 @@ export class Reward {
   cumulativePurchaseAmount: string | null;
 
   @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })
-  amount: string | null;
+  rewardAmount: string | null;
 
   @Column({ type: `varchar`, nullable: true })
   status: string | null;

@@ -19,7 +19,7 @@ export class Transaction implements HasExternalUuid {
   externalUuid: string;
 
   @Index()
-  @Column({ type: `uuid` })
+  @Column({ type: `uuid`, nullable: true })
   storeId: string;
 
   @Index()
@@ -31,7 +31,7 @@ export class Transaction implements HasExternalUuid {
   memberId: string;
 
   @Index()
-  @Column({ type: `uuid` })
+  @Column({ type: `uuid`, nullable: true })
   brandId: string;
 
   @Column({ type: `int`, nullable: true })
@@ -52,8 +52,8 @@ export class Transaction implements HasExternalUuid {
   @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })
   matchingAmount: string | null;
 
-  // @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })
-  // rewardAmount: string | null;
+  @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })
+  rewardAmount: string | null;
 
   @Column({ type: `int`, default: 0 })
   availableOfferCount: number;

@@ -17,7 +17,11 @@ export class DatabaseService {
     });
 
     if (existing) {
-      return await repo.save(repo.merge(existing, record as DeepPartial<T>));
+      try {
+        return await repo.save(repo.merge(existing, record as DeepPartial<T>));
+      } catch (e) {
+        console.error(e);
+      }
     }
     try {
       return await repo.save(repo.create(record as T));
@@ -35,7 +39,10 @@ export class DatabaseService {
     records: Record<string, any>[],
   ): Promise<T[]> {
     const repo = this.dataSource.getRepository(entityClass);
-
-    return Promise.all(records.map((record) => this.upsertOne(repo, record)));
+    try {
+      return Promise.all(records.map((record) => this.upsertOne(repo, record)));
+    } catch (e) {
+      console.error(e);
+    }
   }
 }

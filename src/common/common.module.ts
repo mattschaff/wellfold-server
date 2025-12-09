@@ -11,6 +11,7 @@ import { Member, Reward, Transaction } from './entities';
 import { DatabaseService } from './providers/database.service';
 import { HttpInterceptorProvider } from './providers/http.interceptor';
 import { PrefixNamingStrategy } from './providers/prefix-naming.strategy';
+import { UtilityService } from './providers/utility.service';
 
 @Module({
   imports: [
@@ -32,12 +33,17 @@ import { PrefixNamingStrategy } from './providers/prefix-naming.strategy';
     }),
     TypeOrmModule.forFeature([Member, Reward, Transaction]),
     HttpModule.register({
-      timeout: 20000,
+      timeout: 200000,
       maxRedirects: 5,
     }),
     ConfigModule,
   ],
-  providers: [DatabaseService, HttpInterceptorProvider, DatabaseService],
-  exports: [HttpModule, ConfigModule, DatabaseService],
+  providers: [
+    DatabaseService,
+    HttpInterceptorProvider,
+    DatabaseService,
+    UtilityService,
+  ],
+  exports: [HttpModule, ConfigModule, DatabaseService, UtilityService],
 })
 export class CommonModule {}

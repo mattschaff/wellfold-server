@@ -1,15 +1,20 @@
-import { ENV__OLIVE_API_KEY } from '@/common/constants';
+import { ENV__OLIVE_API_KEY, ENV__OLIVE_CLIENT_ID } from '@/common/constants';
+import { UtilityService } from '@/common/providers/utility.service';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
-import { OliveApiResponse } from './olive.types';
+import { OliveApiResponse, OliveRecordType } from './olive.types';
 
 const OLIVE_API_BASE_URL = `https://api.oliveltd.com/v1`;
-
+const CREATED_SINCE = `gt:2025-07-01T00:00:00Z`;
 @Injectable()
 export class OliveService {
-  constructor(protected http: HttpService, protected config: ConfigService) {}
+  constructor(
+    protected http: HttpService,
+    protected config: ConfigService,
+    protected utility: UtilityService,
+  ) {}
   protected getConfig() {
     return {
       headers: {
@@ -19,23 +24,37 @@ export class OliveService {
       },
     };
   }
-  async pullTransactions() {
-    //
+  async pullTransactions(
+    pageSize = 1000,
+    pageNumber = 1,
+  ): Promise<OliveApiResponse> {
+    return await this.pullRecords(`transactions`, pageSize, pageNumber, {
+      clientId: this.config.get(ENV__OLIVE_CLIENT_ID),
+    });
   }
+
   async pullMembers(
     pageSize = 1000,
     pageNumber?: number,
   ): Promise<OliveApiResponse> {
-    const apiName = `members`;
+    return await this.pullRecords(`members`, pageSize, pageNumber);
+  }
 
-    const params = new URLSearchParams({
+  async pullRecords(
+    recordType: OliveRecordType,
+    pageSize = 1000,
+    pageNumber = 1,
+    additionalParams?: any,
+  ): Promise<OliveApiResponse> {
+    const params = this.utility.buildOliveQuery({
+      pageNumber: `${pageNumber}`,
       pageSize: `${pageSize}`,
-      pageNumber: pageNumber ? `${pageNumber}` : `0`,
       sort: `created:asc`,
+      created: CREATED_SINCE,
+      ...(additionalParams && { ...additionalParams }),
     });
-
-    const url = `${OLIVE_API_BASE_URL}/${apiName}?${params.toString()}`;
-
+    const url = `${OLIVE_API_BASE_URL}/${recordType}?${params}`;
+    console.log({ url });
     return (await lastValueFrom(
       this.http.get<OliveApiResponse>(url, this.getConfig()),
     )) as unknown as OliveApiResponse;
