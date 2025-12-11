@@ -1,4 +1,4 @@
-import { Member, Transaction } from '@/common/entities';
+import { Card, Member, Transaction } from '@/common/entities';
 import { DatabaseService } from '@/common/providers/database.service';
 import { HasExternalUuid } from '@/common/types/common.types';
 import { OliveService } from '@/olive/olive.service';
@@ -20,8 +20,9 @@ export class SyncManagerService {
     command: `run-initial-import`,
   })
   async runInitialImport() {
-    // await this.importMembers();
-    // await this.importTransactions();
+    await this.importMembers();
+    await this.importCards();
+    await this.importTransactions();
     await this.runCalculations();
   }
 
@@ -154,6 +155,17 @@ export class SyncManagerService {
       (pageSize, pageNumber) =>
         this.olive.pullTransactions(pageSize, pageNumber),
       Transaction,
+    );
+  }
+
+  /**
+   * Import Cards using shared logic
+   */
+  async importCards(): Promise<void> {
+    console.log(`Importing cards.`);
+    return this.importPaginated(
+      (pageSize, pageNumber) => this.olive.pullCards(pageSize, pageNumber),
+      Card,
     );
   }
 }

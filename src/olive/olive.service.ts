@@ -33,6 +33,13 @@ export class OliveService {
     });
   }
 
+  async pullCards(
+    pageSize = 1000,
+    pageNumber?: number,
+  ): Promise<OliveApiResponse> {
+    return await this.pullRecords(`cards`, pageSize, pageNumber);
+  }
+
   async pullMembers(
     pageSize = 1000,
     pageNumber?: number,

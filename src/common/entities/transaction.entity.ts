@@ -44,7 +44,7 @@ export class Transaction implements HasExternalUuid, HasInternalCreatedUpdated {
   @Column({ type: `varchar`, nullable: true })
   currencyCode: string | null;
 
-  @CreateDateColumn({ type: `timestamptz` })
+  @Column({ type: `timestamptz` })
   created: Date;
 
   @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })

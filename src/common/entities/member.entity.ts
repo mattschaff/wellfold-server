@@ -78,7 +78,7 @@ export class Member implements HasExternalUuid, HasInternalCreatedUpdated {
   @Column({ type: `int`, default: 0 })
   externalPersonId: number;
 
-  @CreateDateColumn({ type: `timestamptz` })
+  @Column({ type: `timestamptz` })
   created: Date;
 
   @UpdateDateColumn({ type: `timestamptz` })

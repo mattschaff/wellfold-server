@@ -4,4 +4,4 @@ export type OliveApiResponse = {
   items: any[];
 };
 
-export type OliveRecordType = `members` | `transactions`;
+export type OliveRecordType = `members` | `transactions` | `cards`;

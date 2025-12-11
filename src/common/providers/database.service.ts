@@ -12,9 +12,14 @@ export class DatabaseService {
     repo: Repository<T>,
     record: Record<string, any>,
   ): Promise<T> {
-    const existing = await repo.findOne({
-      where: { externalUuid: record.externalUuid },
-    });
+    let existing: T;
+    try {
+      existing = await repo.findOne({
+        where: { externalUuid: record.externalUuid },
+      });
+    } catch (e) {
+      console.error(e);
+    }
 
     if (existing) {
       try {

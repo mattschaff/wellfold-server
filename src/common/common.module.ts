@@ -7,7 +7,7 @@ import {
   ENV__DB_URL_NAME,
   ENV__IS_DEV,
 } from './constants/global.constants';
-import { Member, Reward, Transaction } from './entities';
+import { Card, Member, Reward, Transaction } from './entities';
 import { DatabaseService } from './providers/database.service';
 import { HttpInterceptorProvider } from './providers/http.interceptor';
 import { PrefixNamingStrategy } from './providers/prefix-naming.strategy';
@@ -31,7 +31,7 @@ import { UtilityService } from './providers/utility.service';
         };
       },
     }),
-    TypeOrmModule.forFeature([Member, Reward, Transaction]),
+    TypeOrmModule.forFeature([Card, Member, Reward, Transaction]),
     HttpModule.register({
       timeout: 200000,
       maxRedirects: 5,
