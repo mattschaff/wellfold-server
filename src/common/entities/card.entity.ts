@@ -18,7 +18,7 @@ export enum IntegrationStatus {
   NOT_QUALIFIED = `not_qualified`,
 }
 
-@Entity(`card`)
+@Entity(`cards`)
 export class Card implements HasExternalUuid, HasInternalCreatedUpdated {
   @PrimaryGeneratedColumn({ type: `bigint` })
   id: string;

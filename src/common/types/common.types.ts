@@ -1,5 +1,5 @@
 export interface HasExternalUuid {
-  externalUuid: string;
+  externalUuid?: string;
 }
 
 export interface HasInternalCreatedUpdated {

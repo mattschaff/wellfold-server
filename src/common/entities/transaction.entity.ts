@@ -14,7 +14,7 @@ import {
 } from '../types/common.types';
 import { Reward } from './reward.entity';
 
-@Entity(`transaction`)
+@Entity(`transactions`)
 @Index([`externalUuid`, `thirdPartyOrigin`], { unique: true })
 export class Transaction implements HasExternalUuid, HasInternalCreatedUpdated {
   @PrimaryGeneratedColumn({ type: `bigint` })

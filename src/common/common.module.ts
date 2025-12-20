@@ -7,7 +7,16 @@ import {
   ENV__DB_URL_NAME,
   ENV__IS_DEV,
 } from './constants/global.constants';
-import { Card, Member, Reward, Transaction } from './entities';
+import {
+  Card,
+  Member,
+  MemberMetric,
+  Program,
+  Promotion,
+  Reward,
+  Transaction,
+} from './entities';
+
 import { DatabaseService } from './providers/database.service';
 import { HttpInterceptorProvider } from './providers/http.interceptor';
 import { PrefixNamingStrategy } from './providers/prefix-naming.strategy';
@@ -31,7 +40,15 @@ import { UtilityService } from './providers/utility.service';
         };
       },
     }),
-    TypeOrmModule.forFeature([Card, Member, Reward, Transaction]),
+    TypeOrmModule.forFeature([
+      Card,
+      Member,
+      MemberMetric,
+      Reward,
+      Program,
+      Promotion,
+      Transaction,
+    ]),
     HttpModule.register({
       timeout: 200000,
       maxRedirects: 5,
