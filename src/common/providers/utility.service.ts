@@ -7,4 +7,8 @@ export class UtilityService {
       .map(([k, v]) => `${k}=${v}`)
       .join(`&`);
   }
+
+  convertRoundedAmountIntoAmount(roundedAmount: number) {
+    return Number((roundedAmount / 0.05).toFixed(2));
+  }
 }

@@ -1,4 +1,4 @@
-import { Card, Member, Transaction } from '@/common/entities';
+import { Card, Member, MemberMetric, Transaction } from '@/common/entities';
 import { DatabaseService } from '@/common/providers/database.service';
 import { HasExternalUuid, ThirdPartyOrigin } from '@/common/types/common.types';
 import { LoyalizeService } from '@/loyalize/loyalize.service';
@@ -22,14 +22,18 @@ export class SyncManagerService {
     command: `run-initial-import`,
   })
   async runInitialImport() {
-    await this.importMembers();
-    await this.importCards();
-    await this.importTransactions();
-    await this.runCalculations();
+    try {
+      await this.importMembers();
+      await this.importCards();
+      await this.importTransactions();
+      await this.runMetrics();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
-  async runCalculations() {
-    const batchSize = 1000;
+  async runMetrics() {
+    const batchSize = 100;
 
     // First get total count (fast query)
     const total = await this.database.count(Member);
@@ -48,6 +52,7 @@ export class SyncManagerService {
 
     while (hasMore) {
       const updatedMembers = [];
+      const updatedMetrics = [];
       const memberBatch = await this.database.getMany(
         Member,
         batchSize,
@@ -66,11 +71,23 @@ export class SyncManagerService {
           qualifiedGmv,
           rewards,
         });
-
-        bar.increment(); // progress per member
+        updatedMetrics.push(
+          ...this.metrics.constructMemberMetricEntities(
+            member,
+            totalGmv,
+            qualifiedGmv,
+            rewards,
+          ),
+        );
+        bar.increment();
       }
 
       await this.database.upsertMany(Member, updatedMembers);
+      await this.database.upsertMany(
+        MemberMetric,
+        updatedMetrics,
+        `uniqueMemberMetricId`,
+      );
 
       offset += batchSize;
       hasMore = memberBatch.length === batchSize;

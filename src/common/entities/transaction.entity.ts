@@ -41,11 +41,11 @@ export class Transaction implements HasExternalUuid, HasInternalCreatedUpdated {
    * ----------------------------- */
 
   @Index()
-  @Column({ type: `uuid`, nullable: true })
-  oliveMemberId: string | null;
+  @Column({ type: `text`, nullable: true })
+  oliveMemberId?: string;
 
   @Index()
-  @Column({ type: `uuid`, nullable: true })
+  @Column({ type: `text`, nullable: true })
   loyalizeShopperId: string | null;
 
   @Index()

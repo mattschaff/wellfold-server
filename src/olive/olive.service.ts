@@ -32,9 +32,23 @@ export class OliveService implements TransactionsPuller {
     pageSize = 1000,
     pageNumber = 1,
   ): Promise<GenericApiResponse> {
-    return await this.pullRecords(`transactions`, pageSize, pageNumber, {
-      clientId: this.config.get(ENV__OLIVE_CLIENT_ID),
-    });
+    const results = await this.pullRecords(
+      `transactions`,
+      pageSize,
+      pageNumber,
+      {
+        clientId: this.config.get(ENV__OLIVE_CLIENT_ID),
+      },
+    );
+    return {
+      ...results,
+      items: results.items.map((item) => {
+        return {
+          ...item,
+          oliveMemberId: item.memberId,
+        };
+      }),
+    };
   }
 
   async pullCards(

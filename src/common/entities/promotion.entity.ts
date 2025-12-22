@@ -12,7 +12,7 @@ export class Promotion {
   programId?: string;
 
   @Column({ type: `jsonb`, nullable: true, name: `mcc_codes` })
-  mccCodes?: unknown;
+  mccCodes?: number[];
 
   @Column({ type: `timestamptz`, nullable: true, name: `start_date` })
   startDate?: Date;

@@ -11,11 +11,12 @@ export class DatabaseService {
   public async upsertOne<T extends HasExternalUuid>(
     repo: Repository<T>,
     record: Record<string, any>,
+    idName = `externalUuid`,
   ): Promise<T> {
     let existing: T;
     try {
       existing = await repo.findOne({
-        where: { externalUuid: record.externalUuid },
+        where: { [idName]: record[idName] } as any,
       });
     } catch (e) {
       console.error(e);
@@ -39,13 +40,16 @@ export class DatabaseService {
    * Upsert all records passed in parallel.
    * Batching is now handled outside this service.
    */
-  async upsertMany<T extends HasExternalUuid>(
+  async upsertMany<T>(
     entityClass: new () => T,
     records: Record<string, any>[],
+    findById?: string,
   ): Promise<T[]> {
     const repo = this.dataSource.getRepository(entityClass);
     try {
-      return Promise.all(records.map((record) => this.upsertOne(repo, record)));
+      return Promise.all(
+        records.map((record) => this.upsertOne(repo, record, findById)),
+      );
     } catch (e) {
       console.error(e);
     }
@@ -56,6 +60,7 @@ export class DatabaseService {
     limit: number,
     offset: number,
     where: Record<string, any> = {},
+    ignoreOrder?: boolean,
   ): Promise<T[]> {
     const repo = this.dataSource.getRepository(entityClass);
 
@@ -63,9 +68,11 @@ export class DatabaseService {
       where,
       take: limit,
       skip: offset,
-      order: {
-        createdInternally: `ASC`,
-      } as any,
+      order: ignoreOrder
+        ? undefined
+        : ({
+            createdInternally: `ASC`,
+          } as any),
     });
   }
 

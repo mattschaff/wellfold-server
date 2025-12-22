@@ -24,8 +24,12 @@ export class MemberMetric {
   member?: Member;
 
   @Index()
-  @Column({ type: `text`, nullable: true })
+  @Column({ type: `text` })
   type: string;
+
+  @Index()
+  @Column({ type: `text` })
+  uniqueMemberMetricId: string;
 
   @Column({
     type: `numeric`,
