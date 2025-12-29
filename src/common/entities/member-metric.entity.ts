@@ -30,7 +30,7 @@ export class MemberMetric {
   type: string;
 
   @Index()
-  @Column({ type: `text` })
+  @Column({ type: `text`, name: `unique_member_metric_id` })
   uniqueMemberMetricId: string;
 
   @Column({

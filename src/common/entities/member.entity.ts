@@ -12,6 +12,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Card } from './card.entity';
 import { MemberMetric } from './member-metric.entity';
 import { Transaction } from './transaction.entity';
 
@@ -113,7 +114,10 @@ export class Member implements HasExternalUuid, HasInternalCreatedUpdated {
   metrics!: MemberMetric[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.member)
-  transactions!: Transaction[];
+  transactions?: Transaction[];
+
+  @OneToMany(() => Card, (card) => card.member)
+  cards?: Card[];
 
   @UpdateDateColumn({ type: `timestamptz` })
   updated: Date;
@@ -178,9 +182,9 @@ export class Member implements HasExternalUuid, HasInternalCreatedUpdated {
   @Column({ type: `text`, nullable: true, name: `metrics_calculation_status` })
   metricsCalculationStatus?: string;
 
-  @CreateDateColumn({ type: `timestamptz` })
+  @CreateDateColumn({ type: `timestamptz`, name: `created_internally` })
   createdInternally: Date;
 
-  @UpdateDateColumn({ type: `timestamptz` })
+  @UpdateDateColumn({ type: `timestamptz`, name: `updated_internally` })
   updatedInternally: Date;
 }

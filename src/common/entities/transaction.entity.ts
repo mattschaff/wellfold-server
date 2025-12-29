@@ -20,135 +20,12 @@ import { Reward } from './reward.entity';
 @Entity(`transactions`)
 @Index([`externalUuid`, `thirdPartyOrigin`], { unique: true })
 export class Transaction implements HasExternalUuid, HasInternalCreatedUpdated {
-  @PrimaryGeneratedColumn({ type: `bigint` })
+  @PrimaryGeneratedColumn({ type: `bigint`, name: `id` })
   id: string;
 
-  /**
-   * External transaction identifier
-   * - Olive: UUID
-   * - Loyalize: stringified numeric id or sid
-   */
-  @Index()
-  @Column({ type: `varchar`, length: 64 })
-  externalUuid: string;
-
-  /**
-   * Olive | Loyalize
-   */
-  @Index()
-  @Column({ type: `varchar` })
-  thirdPartyOrigin: ThirdPartyOrigin;
-
   /* -----------------------------
-   * Shared / normalized identity
+   * Relations
    * ----------------------------- */
-
-  @Index()
-  @Column({ type: `text`, nullable: true })
-  oliveMemberId?: string;
-
-  @Index()
-  @Column({ type: `text`, nullable: true })
-  loyalizeShopperId: string | null;
-
-  @Index()
-  @Column({ type: `varchar`, nullable: true })
-  storeId: string | null; // UUID (Olive) or numeric/string (Loyalize)
-
-  @Column({ type: `varchar`, nullable: true })
-  storeName: string | null; // Loyalize-only
-
-  @Index()
-  @Column({ type: `uuid`, nullable: true })
-  cardId: string | null; // Olive-only
-
-  @Index()
-  @Column({ type: `uuid`, nullable: true })
-  brandId: string | null; // Olive-only
-
-  /* -----------------------------
-   * Amounts (normalized)
-   * ----------------------------- */
-
-  @Column({ type: `varchar`, length: 3, nullable: true })
-  currencyCode: string | null;
-
-  @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })
-  amount: string | null; // Olive.amount OR Loyalize.saleAmount
-
-  @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })
-  rewardAmount: string | null; // Olive.rewardAmount OR Loyalize.shopperCommission
-
-  @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })
-  wellfoldCalculatedReward: string | null;
-
-  @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })
-  roundedAmount: string | null; // Olive-only
-
-  @Column({ type: `numeric`, precision: 18, scale: 2, nullable: true })
-  matchingAmount: string | null; // Olive-only
-
-  /* -----------------------------
-   * Dates (union model)
-   * ----------------------------- */
-
-  @Column({ type: `timestamptz` })
-  created: Date; // purchaseDate (Loyalize) OR created (Olive)
-
-  @Column({ type: `timestamptz`, nullable: true })
-  pendingDate: Date | null; // Loyalize-only
-
-  @Column({ type: `timestamptz`, nullable: true })
-  availabilityDate: Date | null; // Loyalize-only
-
-  @Column({ type: `timestamptz`, nullable: true })
-  settlementDate: Date | null; // Olive OR Loyalize paymentDate
-
-  /* -----------------------------
-   * Status / metadata
-   * ----------------------------- */
-
-  @Index()
-  @Column({ type: `varchar`, nullable: true })
-  status: string | null; // Loyalize: PENDING, AVAILABLE, PAID
-
-  @Column({ type: `boolean`, default: false })
-  settled: boolean; // derived
-
-  @Column({ type: `varchar`, nullable: true })
-  orderNumber: string | null; // Loyalize-only
-
-  @Column({ type: `varchar`, nullable: true })
-  tier: string | null; // Loyalize-only
-
-  @Column({ type: `varchar`, nullable: true })
-  adminComment: string | null; // Loyalize-only
-
-  @Column({ type: `int`, nullable: true })
-  merchantCategoryCode: number | null; // Olive-only
-
-  @Column({ type: `varchar`, length: 4, nullable: true })
-  cardLast4Digits: string | null; // Olive-only
-
-  /* -----------------------------
-   * Embedded reward (Olive)
-   * ----------------------------- */
-
-  @Column(() => Reward)
-  reward: Reward;
-
-  @Column({ type: `boolean`, nullable: true })
-  isRedemption: boolean;
-
-  /* -----------------------------
-   * Internal bookkeeping
-   * ----------------------------- */
-
-  @CreateDateColumn({ type: `timestamptz` })
-  createdInternally: Date;
-
-  @UpdateDateColumn({ type: `timestamptz` })
-  updatedInternally: Date;
 
   @Index()
   @ManyToOne(() => Member, (member) => member.transactions, {
@@ -159,4 +36,167 @@ export class Transaction implements HasExternalUuid, HasInternalCreatedUpdated {
     referencedColumnName: `numericId`,
   })
   member?: Member;
+  /* -----------------------------
+   * External identity
+   * ----------------------------- */
+
+  @Index()
+  @Column({ type: `varchar`, length: 64, name: `external_uuid` })
+  externalUuid: string;
+
+  @Index()
+  @Column({ type: `varchar`, name: `third_party_origin` })
+  thirdPartyOrigin: ThirdPartyOrigin;
+
+  /* -----------------------------
+   * Shared / normalized identity
+   * ----------------------------- */
+
+  @Index()
+  @Column({ type: `text`, nullable: true, name: `olive_member_id` })
+  oliveMemberId?: string;
+
+  @Index()
+  @Column({ type: `text`, nullable: true, name: `loyalize_shopper_id` })
+  loyalizeShopperId: string | null;
+
+  @Index()
+  @Column({ type: `varchar`, nullable: true, name: `store_id` })
+  storeId: string | null;
+
+  @Column({ type: `varchar`, nullable: true, name: `store_name` })
+  storeName: string | null;
+
+  @Index()
+  @Column({ type: `uuid`, nullable: true, name: `card_id` })
+  cardId: string | null;
+
+  @Index()
+  @Column({ type: `uuid`, nullable: true, name: `brand_id` })
+  brandId: string | null;
+
+  /* -----------------------------
+   * Amounts (normalized)
+   * ----------------------------- */
+
+  @Column({ type: `varchar`, length: 3, nullable: true, name: `currency_code` })
+  currencyCode: string | null;
+
+  @Column({
+    type: `numeric`,
+    precision: 18,
+    scale: 2,
+    nullable: true,
+    name: `amount`,
+  })
+  amount: string | null;
+
+  @Column({
+    type: `numeric`,
+    precision: 18,
+    scale: 2,
+    nullable: true,
+    name: `reward_amount`,
+  })
+  rewardAmount: string | null;
+
+  @Column({
+    type: `numeric`,
+    precision: 18,
+    scale: 2,
+    nullable: true,
+    name: `wellfold_calculated_reward`,
+  })
+  wellfoldCalculatedReward: string | null;
+
+  @Column({
+    type: `numeric`,
+    precision: 18,
+    scale: 2,
+    nullable: true,
+    name: `rounded_amount`,
+  })
+  roundedAmount: string | null;
+
+  @Column({
+    type: `numeric`,
+    precision: 18,
+    scale: 2,
+    nullable: true,
+    name: `matching_amount`,
+  })
+  matchingAmount: string | null;
+
+  /* -----------------------------
+   * Dates
+   * ----------------------------- */
+
+  @Column({ type: `timestamptz`, name: `created` })
+  created: Date;
+
+  @Column({ type: `timestamptz`, nullable: true, name: `pending_date` })
+  pendingDate: Date | null;
+
+  @Column({ type: `timestamptz`, nullable: true, name: `availability_date` })
+  availabilityDate: Date | null;
+
+  @Column({ type: `timestamptz`, nullable: true, name: `settlement_date` })
+  settlementDate: Date | null;
+
+  /* -----------------------------
+   * Status / metadata
+   * ----------------------------- */
+
+  @Index()
+  @Column({ type: `varchar`, nullable: true, name: `status` })
+  status: string | null;
+
+  @Column({ type: `boolean`, default: false, name: `settled` })
+  settled: boolean;
+
+  @Column({ type: `varchar`, nullable: true, name: `order_number` })
+  orderNumber: string | null;
+
+  @Column({ type: `varchar`, nullable: true, name: `tier` })
+  tier: string | null;
+
+  @Column({ type: `varchar`, nullable: true, name: `admin_comment` })
+  adminComment: string | null;
+
+  @Column({ type: `int`, nullable: true, name: `merchant_category_code` })
+  merchantCategoryCode: number | null;
+
+  @Column({
+    type: `varchar`,
+    length: 4,
+    nullable: true,
+    name: `card_last_4_digits`,
+  })
+  cardLast4Digits: string | null;
+
+  /* -----------------------------
+   * Embedded reward (Olive)
+   * ----------------------------- */
+
+  @Column(() => Reward, { prefix: `reward` })
+  reward: Reward;
+
+  @Column({ type: `boolean`, nullable: true, name: `is_redemption` })
+  isRedemption: boolean;
+
+  /* -----------------------------
+   * Internal bookkeeping
+   * ----------------------------- */
+
+  @CreateDateColumn({
+    type: `timestamptz`,
+    name: `created_internally`,
+  })
+  createdInternally: Date;
+
+  @UpdateDateColumn({
+    type: `timestamptz`,
+    name: `updated_internally`,
+  })
+  updatedInternally: Date;
 }

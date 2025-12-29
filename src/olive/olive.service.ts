@@ -70,6 +70,24 @@ export class OliveService implements TransactionsPuller {
     pageSize = 1000,
     pageNumber?: number,
   ): Promise<GenericApiResponse> {
+    const results = await this.pullRecords(`cards`, pageSize, pageNumber);
+    const memberIdList = results.items.map((item) => item.memberId);
+    const memberList = await this.database.getByProperty(
+      Member,
+      `externalUuid`,
+      memberIdList,
+    );
+    return {
+      ...results,
+      items: results.items.map((item) => {
+        return {
+          ...item,
+          member: memberList.find(
+            (member) => item.memberId === member.externalUuid,
+          ),
+        };
+      }),
+    };
     return await this.pullRecords(`cards`, pageSize, pageNumber);
   }
 
