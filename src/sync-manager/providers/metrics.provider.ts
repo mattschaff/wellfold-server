@@ -42,9 +42,9 @@ export class MetricsService {
 
   constructMemberMetricEntities(
     member: Member,
-    totalGmvValue: number,
-    qualifiedGmvValue: number,
-    rewardsValue: number,
+    totalGmvValue: number | string,
+    qualifiedGmvValue: number | string,
+    rewardsValue: number | string,
   ) {
     const metrics = [
       { type: `total_gmv`, value: totalGmvValue },
@@ -67,19 +67,30 @@ export class MetricsService {
       });
   }
 
-  async calculateGmvAndRewards(member: Member) {
+  async calculateGmvAndRewards(member: Member): Promise<{
+    totalGmv: string;
+    qualifiedGmv: string;
+    rewardsBalance: string;
+    qualifiedTransactionsArray: Transaction[];
+  }> {
     const transactions = await this.getTransactions(member);
     const { qualifiedTransactions, promotionProgress } =
       this.getPromotionProgressAndQualifiedTransactions(member, transactions);
     return {
-      totalGmv: await this.getTotalGmv(transactions),
-      qualifiedGmv: await this.getQualifiedGmv(qualifiedTransactions),
-      rewards: await this.getRewardsBalance(promotionProgress, transactions),
+      totalGmv: (await this.getTotalGmv(transactions)).toString(),
+      qualifiedGmv: (
+        await this.getQualifiedGmv(qualifiedTransactions)
+      ).toString(),
+      rewardsBalance: await this.getRewardsBalance(
+        promotionProgress,
+        transactions,
+      ).toString(),
       qualifiedTransactionsArray: qualifiedTransactions.map(
         (transactionWrapper) => {
           return {
             ...transactionWrapper.transaction,
-            wellfoldCalculatedReward: transactionWrapper.calculatedReward,
+            wellfoldCalculatedReward:
+              transactionWrapper.calculatedReward?.toString(),
           };
         },
       ),

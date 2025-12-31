@@ -33,6 +33,41 @@ export class SyncManagerService {
     }
   }
 
+  @Command({
+    alias: `rmbuni`,
+    command: `run-metrics-by-member-numeric-id <userNumericId>`,
+  })
+  async runMetricsByMemberNumericId(userNumericId: string) {
+    const memberList = await this.database.getByProperty(
+      Member,
+      `numericId`,
+      userNumericId,
+    );
+    if (memberList.length < 1) {
+      console.error(`No user found with that Numeric ID.`);
+      return;
+    }
+    const member = memberList[0];
+    const {
+      qualifiedTransactionsArray,
+      totalGmv,
+      qualifiedGmv,
+      rewardsBalance,
+    } = await this.metrics.calculateGmvAndRewards(member);
+    try {
+      await await this.database.upsertMany(Member, [
+        { ...member, totalGmv, qualifiedGmv, rewardsBalance },
+      ]);
+      await this.database.upsertMany(Transaction, qualifiedTransactionsArray);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  @Command({
+    alias: `rm`,
+    command: `run-metrics`,
+  })
   async runMetrics() {
     const batchSize = 100;
 
@@ -52,9 +87,9 @@ export class SyncManagerService {
     let hasMore = true;
 
     while (hasMore) {
-      const updatedMembers = [];
+      const updatedMembers: Member[] = [];
       const updatedMetrics = [];
-      const updatedTransactions = [];
+      const updatedTransactions: Transaction[] = [];
       const memberBatch = await this.database.getMany(
         Member,
         batchSize,
@@ -64,21 +99,25 @@ export class SyncManagerService {
       if (!memberBatch?.length) break;
 
       for (const member of memberBatch) {
-        const { totalGmv, qualifiedGmv, rewards, qualifiedTransactionsArray } =
-          await this.metrics.calculateGmvAndRewards(member);
+        const {
+          totalGmv,
+          qualifiedGmv,
+          rewardsBalance,
+          qualifiedTransactionsArray,
+        } = await this.metrics.calculateGmvAndRewards(member);
 
         updatedMembers.push({
           ...member,
           totalGmv,
           qualifiedGmv,
-          rewards,
+          rewardsBalance,
         });
         updatedMetrics.push(
           ...this.metrics.constructMemberMetricEntities(
             member,
             totalGmv,
             qualifiedGmv,
-            rewards,
+            rewardsBalance,
           ),
         );
         updatedTransactions.push(...qualifiedTransactionsArray);
